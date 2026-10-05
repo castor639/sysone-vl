@@ -1,0 +1,23 @@
+[project]
+name = "sysone-vl"
+version = "0.1.0"
+description = "System One vision-language decision model trained with RLCD on a Qwen2.5-VL-3B backbone"
+requires-python = ">=3.10"
+dependencies = [
+  "torch>=2.4",
+  "transformers>=4.52",
+  "peft>=0.13",
+  "accelerate>=1.0",
+  "qwen-vl-utils",
+  "pillow",
+  "numpy",
+  "fastapi",
+  "uvicorn",
+  "python-multipart",
+]
+
+[project.optional-dependencies]
+imagen = ["httpx"]
+
+[tool.setuptools.packages.find]
+include = ["sysone*", "imagen*"]

@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jev Imagen</title>
+<style>
+  :root { --bg:#0f1115; --panel:#171a21; --line:#262b36; --text:#e6e8ee; --muted:#8b93a7; --accent:#6ea8fe; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  header { padding:12px 16px; border-bottom:1px solid var(--line); display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  header h1 { font-size:16px; margin:0 12px 0 0; font-weight:600; }
+  header label { color:var(--muted); font-size:13px; display:flex; gap:6px; align-items:center; }
+  header input, header select { background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:6px; padding:4px 8px; }
+  header input[type=number] { width:64px; }
+  main { max-width:960px; margin:0 auto; padding:16px; padding-bottom:120px; }
+  .msg { margin:12px 0; display:flex; }
+  .msg.user { justify-content:flex-end; }
+  .bubble { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; max-width:100%; }
+  .user .bubble { background:#22304a; border-color:#2e4470; }
+  .status { color:var(--muted); font-size:13px; margin:4px 0; }
+  .plan { font-size:13px; color:var(--muted); margin:6px 0 10px; }
+  .plan b { color:var(--text); font-weight:600; }
+  .cand { position:relative; border:2px solid var(--line); border-radius:10px; overflow:hidden; background:#000; width:min(100%, 512px); }
+  .cand img { display:block; width:100%; aspect-ratio:1/1; image-rendering:auto; }
+  .cand .bar { position:absolute; left:0; bottom:0; height:4px; background:var(--accent); width:0%; transition:width .15s; }
+  .cand .tag { position:absolute; top:6px; left:6px; background:rgba(0,0,0,.6); padding:2px 7px; border-radius:6px; font-size:12px; }
+  .err { color:#ff7b7b; }
+  form { position:fixed; left:0; right:0; bottom:0; background:var(--bg); border-top:1px solid var(--line); padding:12px 16px; }
+  form .row { max-width:960px; margin:0 auto; display:flex; gap:8px; }
+  form input[type=text] { flex:1; background:var(--panel); color:var(--text); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:15px; }
+  form button { background:var(--accent); color:#06162e; border:0; border-radius:10px; padding:0 18px; font-weight:600; cursor:pointer; }
+  form button:disabled { opacity:.5; cursor:default; }
+  @media (prefers-color-scheme: light) { :root { --bg:#f6f7fa; --panel:#fff; --line:#dde1ea; --text:#141821; --muted:#5f6778; } .user .bubble { background:#e3ecff; border-color:#c6d6fb; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>Jev Imagen</h1>
+  <label>grid <select id="grid"><option>16</option><option selected>32</option><option>48</option><option>64</option><option>96</option><option>128</option></select></label>
+  <label>render <select id="render"><option value="soft" selected>soft (blended)</option><option value="hard">hard (palette)</option></select></label>
+  <label>rounds per level <input id="rounds" type="number" min="1" max="6" value="2"></label>
+  <label>seed <input id="seed" type="number" value="0"></label>
+</header>
+<main id="chat"></main>
+<form id="form">
+  <div class="row">
+    <input id="prompt" type="text" placeholder="Describe the image you want" autocomplete="off" autofocus>
+    <button id="send" type="submit">Generate</button>
+  </div>
+</form>
+<script>
+const chat = document.getElementById('chat');
+const form = document.getElementById('form');
+const promptEl = document.getElementById('prompt');
+const sendBtn = document.getElementById('send');
+function el(tag, cls, html) { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; }
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function scroll() { window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}); }
+
+async function generate(prompt) {
+  const u = el('div', 'msg user'); u.appendChild(el('div', 'bubble', esc(prompt))); chat.appendChild(u);
+  const a = el('div', 'msg'); const b = el('div', 'bubble'); a.appendChild(b); chat.appendChild(a);
+  const status = el('div', 'status', 'starting'); b.appendChild(status);
+  let cand = null;
+  scroll();
+  const body = { prompt, grid: +document.getElementById('grid').value || 32,
+                 rounds: +document.getElementById('rounds').value || 2, seed: +document.getElementById('seed').value || 0,
+                 render: document.getElementById('render').value };
+  const res = await fetch('/generate', { method: 'POST', headers: {'content-type': 'application/json'}, body: JSON.stringify(body) });
+  const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
+  while (true) {
+    const { value, done } = await reader.read(); if (done) break;
+    buf += dec.decode(value, { stream: true });
+    let i; while ((i = buf.indexOf('\n')) >= 0) { const line = buf.slice(0, i); buf = buf.slice(i + 1); if (line.trim()) handle(JSON.parse(line)); }
+  }
+  function handle(ev) {
+    if (ev.type === 'status') { status.textContent = ev.text; }
+    else if (ev.type === 'plan') {
+      const parts = (ev.parts || []).map(p => `${esc(p.name)}: ${esc(p.shape)} ${esc(p.rel)}, ${esc(p.color)}`).join(' · ');
+      const subj = ev.subject ? `${esc(ev.subject)} as a ${esc(ev.shape)} (tilt ${Math.round(ev.tilt)}°, ${ev.aspect.toFixed(1)}:1), ${esc(ev.color)} with ${esc(ev.edge)} edge, size ${ev.size.toFixed(2)} at (${ev.x.toFixed(2)}, ${ev.y.toFixed(2)})${ev.glow ? ', glowing' : ''}${parts ? ' · ' + parts : ''}` : 'no single subject';
+      b.appendChild(el('div', 'plan', `<b>Jev layout</b> background ${esc(ev.bg_top)} over ${esc(ev.bg_bottom)}${ev.split ? `, horizon at ${ev.horizon.toFixed(2)}` : ''} · ${subj}`));
+    }
+    else if (ev.type === 'start') {
+      cand = el('div', 'cand'); cand.innerHTML = `<img alt="canvas"><div class="tag">planning</div><div class="bar"></div>`; b.appendChild(cand);
+      cand.img = cand.querySelector('img'); cand.tag = cand.querySelector('.tag'); cand.bar = cand.querySelector('.bar');
+      status.textContent = 'Jev is choosing pixels';
+    }
+    else if (ev.type === 'frame') {
+      cand.img.src = 'data:image/png;base64,' + ev.img;
+      cand.tag.textContent = `level ${ev.level}/${ev.levels} · ${ev.grid}x${ev.grid} · round ${ev.round}/${ev.rounds} · ${ev.committed}/${ev.cells} decided · ${ev.asked} asked`;
+      cand.bar.style.width = (100 * ev.round / ev.rounds) + '%';
+    }
+    else if (ev.type === 'final') { cand.img.src = 'data:image/png;base64,' + ev.img; cand.bar.style.width = '100%'; cand.tag.textContent = 'done'; }
+    else if (ev.type === 'done') { status.textContent = `done in ${ev.seconds}s · ${ev.usage.calls} Jev calls · ${ev.usage.cells_asked} cells asked · ${(ev.usage.input_tokens/1e6).toFixed(2)}M input tokens (~$${(ev.usage.input_tokens/1e6*0.042).toFixed(3)}) · saved to ${ev.out}`; }
+    else if (ev.type === 'error') { status.className = 'status err'; status.textContent = ev.text; }
+    scroll();
+  }
+}
+form.addEventListener('submit', async e => {
+  e.preventDefault(); const p = promptEl.value.trim(); if (!p) return;
+  promptEl.value = ''; sendBtn.disabled = true;
+  try { await generate(p); } catch (err) { chat.appendChild(el('div', 'status err', String(err))); }
+  sendBtn.disabled = false; promptEl.focus();
+});
+</script>
+</body>
+</html>

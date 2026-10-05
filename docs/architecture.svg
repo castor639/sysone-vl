@@ -1,0 +1,236 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" font-family="Arial, Helvetica, sans-serif">
+  <defs>
+    <linearGradient id="gAmber" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f0a35e" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#f0a35e" stop-opacity="0.07"/>
+    </linearGradient>
+    <linearGradient id="gTeal" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7cc7bf" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#7cc7bf" stop-opacity="0.07"/>
+    </linearGradient>
+    <linearGradient id="gBlue" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7aa2f7" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#7aa2f7" stop-opacity="0.07"/>
+    </linearGradient>
+    <linearGradient id="gMag" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#e14eca" stop-opacity="0.32"/>
+      <stop offset="1" stop-color="#e14eca" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="gGreen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9ece6a" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#9ece6a" stop-opacity="0.07"/>
+    </linearGradient>
+    <linearGradient id="gRed" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#f7768e" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#f7768e" stop-opacity="0.07"/>
+    </linearGradient>
+    <linearGradient id="gRedUp" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#f7768e" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#f7768e" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="gMagV" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e14eca" stop-opacity="0.10"/>
+      <stop offset="0.5" stop-color="#e14eca" stop-opacity="0.30"/>
+      <stop offset="1" stop-color="#e14eca" stop-opacity="0.10"/>
+    </linearGradient>
+    <linearGradient id="gFade" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#c8cdd5" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#c8cdd5" stop-opacity="0.05"/>
+    </linearGradient>
+  </defs>
+  <style>
+    text { fill: #20242a; }
+    text[fill="#9aa0a8"] { fill: #68717d; }
+    rect[fill="#0e1013"], rect[fill="#12151a"], rect[fill="#161a20"] { fill: #ffffff; }
+    rect[stroke="#e8e6e1"] { stroke: #20242a; }
+    line[stroke="#2b3038"] { stroke: #d9dde3; }
+  </style>
+
+  <rect width="1600" height="900" fill="#ffffff"/>
+
+  <!-- ================= panel (a) inference ================= -->
+  <text x="60" y="52" font-size="25" fill="#e8e6e1" font-style="italic">(a) inference: one forward pass answers every question</text>
+
+  <!-- input boxes -->
+  <rect x="40" y="100" width="170" height="44" fill="#161a20" stroke="#f0a35e" stroke-width="1.2"/>
+  <text x="125" y="128" font-size="17" fill="#f0a35e" text-anchor="middle">camera image</text>
+  <rect x="40" y="190" width="170" height="44" fill="#161a20" stroke="#7cc7bf" stroke-width="1.2"/>
+  <text x="125" y="218" font-size="17" fill="#7cc7bf" text-anchor="middle">state text</text>
+  <rect x="40" y="280" width="170" height="44" fill="#161a20" stroke="#7aa2f7" stroke-width="1.2"/>
+  <text x="125" y="308" font-size="17" fill="#7aa2f7" text-anchor="middle">question text</text>
+  <rect x="40" y="370" width="190" height="44" fill="#161a20" stroke="#e14eca" stroke-width="1.2"/>
+  <text x="135" y="398" font-size="16" fill="#e14eca" text-anchor="middle">slot tokens, 1 per candidate</text>
+
+  <!-- ribbons: image to vision encoder, others merge into LM -->
+  <path d="M210,109 L330,109 L330,135 L210,135 Z" fill="url(#gAmber)"/>
+  <path d="M210,122 L330,122" stroke="#f0a35e" stroke-width="2.5" fill="none"/>
+  <path d="M324,116 L334,122 L324,128 Z" fill="#f0a35e"/>
+
+  <path d="M210,199 C300,199 380,192 480,192 L480,218 C380,218 300,225 210,225 Z" fill="url(#gTeal)"/>
+  <path d="M210,212 C300,212 380,205 478,205" stroke="#7cc7bf" stroke-width="2.5" fill="none"/>
+  <path d="M472,199 L482,205 L472,211 Z" fill="#7cc7bf"/>
+
+  <path d="M210,289 C310,289 390,282 480,282 L480,308 C390,308 310,315 210,315 Z" fill="url(#gBlue)"/>
+  <path d="M210,302 C310,302 390,295 478,295" stroke="#7aa2f7" stroke-width="2.5" fill="none"/>
+  <path d="M472,289 L482,295 L472,301 Z" fill="#7aa2f7"/>
+
+  <path d="M230,379 C320,379 400,372 480,372 L480,398 C400,398 320,405 230,405 Z" fill="url(#gMag)"/>
+  <path d="M230,392 C320,392 400,385 478,385" stroke="#e14eca" stroke-width="2.5" fill="none"/>
+  <path d="M472,379 L482,385 L472,391 Z" fill="#e14eca"/>
+
+  <!-- vision encoder -->
+  <rect x="334" y="100" width="106" height="44" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="387" y="120" font-size="13.5" fill="#e8e6e1" text-anchor="middle">vision</text>
+  <text x="387" y="136" font-size="13.5" fill="#e8e6e1" text-anchor="middle">encoder</text>
+  <path d="M440,109 L480,109 L480,135 L440,135 Z" fill="url(#gAmber)"/>
+  <path d="M440,122 L478,122" stroke="#f0a35e" stroke-width="2.5" fill="none"/>
+  <path d="M472,116 L482,122 L472,128 Z" fill="#f0a35e"/>
+
+  <!-- LM stack -->
+  <rect x="480" y="80" width="240" height="360" fill="#12151a" stroke="#e8e6e1" stroke-width="1.4"/>
+  <line x1="496" y1="150" x2="704" y2="150" stroke="#2b3038" stroke-width="1"/>
+  <line x1="496" y1="210" x2="704" y2="210" stroke="#2b3038" stroke-width="1"/>
+  <line x1="496" y1="270" x2="704" y2="270" stroke="#2b3038" stroke-width="1"/>
+  <line x1="496" y1="330" x2="704" y2="330" stroke="#2b3038" stroke-width="1"/>
+  <line x1="496" y1="390" x2="704" y2="390" stroke="#2b3038" stroke-width="1"/>
+  <text x="600" y="112" font-size="18" fill="#e8e6e1" text-anchor="middle">Qwen2.5-VL-3B</text>
+  <text x="600" y="132" font-size="13" fill="#9aa0a8" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif">language model, one causal pass</text>
+  <rect x="525" y="160" width="150" height="30" fill="#161a20" stroke="#e14eca" stroke-width="1.1"/>
+  <text x="600" y="180" font-size="14" fill="#e14eca" text-anchor="middle">LoRA r=16</text>
+
+  <!-- lm_head removed -->
+  <rect x="760" y="86" width="180" height="34" fill="#0e1013" stroke="#f7768e" stroke-width="1.1" stroke-dasharray="5 4"/>
+  <text x="850" y="108" font-size="14" fill="#f7768e" text-anchor="middle">lm_head removed</text>
+  <path d="M760,103 L722,103" stroke="#f7768e" stroke-width="1.1" stroke-dasharray="4 3" fill="none"/>
+  <text x="850" y="140" font-size="12" fill="#9aa0a8" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif">no vocab projection, no decoding</text>
+
+  <!-- slot peel-off: bus with three taps to the heads -->
+  <path d="M720,372 L836,372 L836,398 L720,398 Z" fill="url(#gMag)"/>
+  <path d="M720,385 L834,385" stroke="#e14eca" stroke-width="2.5" fill="none"/>
+  <text x="726" y="362" font-size="12.5" fill="#9aa0a8" font-family="-apple-system, Helvetica, Arial, sans-serif">hidden state at each slot</text>
+
+  <rect x="828" y="136" width="16" height="262" fill="url(#gMagV)"/>
+  <line x1="836" y1="142" x2="836" y2="385" stroke="#e14eca" stroke-width="2.2"/>
+
+  <path d="M844,134 L862,134 L862,150 L844,150 Z" fill="url(#gMag)"/>
+  <path d="M844,142 L860,142" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M855,136 L865,142 L855,148 Z" fill="#e14eca"/>
+  <path d="M844,254 L862,254 L862,270 L844,270 Z" fill="url(#gMag)"/>
+  <path d="M844,262 L860,262" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M855,256 L865,262 L855,268 Z" fill="#e14eca"/>
+  <path d="M844,374 L862,374 L862,390 L844,390 Z" fill="url(#gMag)"/>
+  <path d="M844,382 L860,382" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M855,376 L865,382 L855,388 Z" fill="#e14eca"/>
+
+  <!-- heads -->
+  <rect x="862" y="120" width="140" height="44" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="880" y="149" font-size="22" fill="#e8e6e1">⊗</text>
+  <text x="902" y="148" font-size="15" fill="#e8e6e1">choice head</text>
+  <rect x="862" y="240" width="140" height="44" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="880" y="269" font-size="22" fill="#e8e6e1">⊗</text>
+  <text x="902" y="268" font-size="15" fill="#e8e6e1">noul head</text>
+  <rect x="862" y="360" width="140" height="44" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="880" y="389" font-size="22" fill="#e8e6e1">⊗</text>
+  <text x="902" y="388" font-size="15" fill="#e8e6e1">score head</text>
+  <text x="862" y="428" font-size="12.5" fill="#9aa0a8" font-family="-apple-system, Helvetica, Arial, sans-serif">MLP, one logit per slot, learned temperature per type</text>
+
+  <!-- head to operator ribbons -->
+  <path d="M1002,132 L1082,132 L1082,152 L1002,152 Z" fill="url(#gMag)"/>
+  <path d="M1002,142 L1080,142" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M1075,136 L1085,142 L1075,148 Z" fill="#e14eca"/>
+  <path d="M1002,252 L1082,252 L1082,272 L1002,272 Z" fill="url(#gMag)"/>
+  <path d="M1002,262 L1080,262" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M1075,256 L1085,262 L1075,268 Z" fill="#e14eca"/>
+  <path d="M1002,372 L1082,372 L1082,392 L1002,392 Z" fill="url(#gMag)"/>
+  <path d="M1002,382 L1080,382" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M1075,376 L1085,382 L1075,388 Z" fill="#e14eca"/>
+
+  <!-- operators -->
+  <rect x="1085" y="120" width="64" height="44" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="1117" y="151" font-size="24" fill="#e8e6e1" text-anchor="middle">Σ</text>
+  <text x="1117" y="112" font-size="12" fill="#9aa0a8" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif">over options</text>
+  <rect x="1085" y="240" width="64" height="44" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="1117" y="271" font-size="24" fill="#e8e6e1" text-anchor="middle">σ</text>
+  <rect x="1085" y="360" width="64" height="44" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="1117" y="391" font-size="24" fill="#e8e6e1" text-anchor="middle">Σ</text>
+  <text x="1117" y="352" font-size="12" fill="#9aa0a8" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif">over levels</text>
+
+  <!-- tapering ribbons to outputs -->
+  <path d="M1149,133 L1232,140 L1232,144 L1149,151 Z" fill="url(#gMag)"/>
+  <path d="M1149,142 L1230,142" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M1149,253 L1232,260 L1232,264 L1149,271 Z" fill="url(#gMag)"/>
+  <path d="M1149,262 L1230,262" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+  <path d="M1149,373 L1232,380 L1232,384 L1149,391 Z" fill="url(#gMag)"/>
+  <path d="M1149,382 L1230,382" stroke="#e14eca" stroke-width="2.2" fill="none"/>
+
+  <!-- output chips -->
+  <rect x="1232" y="114" width="328" height="56" fill="#161a20" stroke="#e8e6e1" stroke-width="1.2"/>
+  <rect x="1232" y="122" width="5" height="40" fill="#e14eca"/>
+  <text x="1250" y="137" font-size="14.5" fill="#9aa0a8">choice</text>
+  <text x="1250" y="159" font-size="16.5" fill="#e8e6e1">green triangle, p 0.97</text>
+  <rect x="1232" y="234" width="328" height="56" fill="#161a20" stroke="#e8e6e1" stroke-width="1.2"/>
+  <rect x="1232" y="242" width="5" height="40" fill="#e14eca"/>
+  <text x="1250" y="257" font-size="14.5" fill="#9aa0a8">noul</text>
+  <text x="1250" y="279" font-size="16.5" fill="#e8e6e1">grasp succeeds, p 0.31</text>
+  <rect x="1232" y="354" width="328" height="56" fill="#161a20" stroke="#e8e6e1" stroke-width="1.2"/>
+  <rect x="1232" y="362" width="5" height="40" fill="#e14eca"/>
+  <text x="1250" y="377" font-size="14.5" fill="#9aa0a8">score</text>
+  <text x="1250" y="399" font-size="16.5" fill="#e8e6e1">heavy, p 0.94, expected 3.9</text>
+
+  <line x1="40" y1="500" x2="1560" y2="500" stroke="#2b3038" stroke-width="1"/>
+
+  <!-- ================= panel (b) RLCD loop ================= -->
+  <text x="60" y="548" font-size="25" fill="#e8e6e1" font-style="italic">(b) stage 2, RLCD: act, observe, score the taken decision</text>
+
+  <!-- decision chip -->
+  <rect x="60" y="640" width="210" height="64" fill="#161a20" stroke="#e8e6e1" stroke-width="1.2"/>
+  <rect x="60" y="649" width="5" height="46" fill="#e14eca"/>
+  <text x="78" y="666" font-size="16" fill="#e8e6e1">typed decision</text>
+  <text x="78" y="690" font-size="12.5" fill="#9aa0a8" font-family="-apple-system, Helvetica, Arial, sans-serif">from (a), the model acts</text>
+
+  <path d="M270,660 L362,660 L362,684 L270,684 Z" fill="url(#gFade)"/>
+  <path d="M270,672 L360,672" stroke="#c8cdd5" stroke-width="2.2" fill="none"/>
+  <path d="M354,666 L364,672 L354,678 Z" fill="#c8cdd5"/>
+
+  <!-- environment -->
+  <rect x="364" y="640" width="200" height="64" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="464" y="667" font-size="16.5" fill="#e8e6e1" text-anchor="middle">environment</text>
+  <text x="464" y="690" font-size="12.5" fill="#9aa0a8" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif">tabletop, or a real robot</text>
+
+  <!-- outcome ribbon -->
+  <path d="M564,658 C610,658 650,658 700,658 L700,686 C650,686 610,686 564,686 Z" fill="url(#gGreen)"/>
+  <path d="M564,672 C610,672 650,672 698,672" stroke="#9ece6a" stroke-width="2.5" fill="none"/>
+  <path d="M692,666 L702,672 L692,678 Z" fill="#9ece6a"/>
+  <text x="566" y="648" font-size="12.5" fill="#9ece6a" font-family="-apple-system, Helvetica, Arial, sans-serif">outcome: what actually happened</text>
+  <text x="566" y="706" font-size="12" fill="#9aa0a8" font-family="-apple-system, Helvetica, Arial, sans-serif">bandit for choice, full for noul and score</text>
+
+  <!-- scoring rule -->
+  <rect x="700" y="640" width="280" height="64" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="840" y="667" font-size="16.5" fill="#e8e6e1" text-anchor="middle">proper scoring rule</text>
+  <text x="840" y="690" font-size="12.5" fill="#9aa0a8" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif">on the taken decision</text>
+
+  <!-- gradient ribbon to update box -->
+  <path d="M980,660 L1102,660 L1102,684 L980,684 Z" fill="url(#gRed)"/>
+  <path d="M980,672 L1100,672" stroke="#f7768e" stroke-width="2.5" fill="none"/>
+  <path d="M1094,666 L1104,672 L1094,678 Z" fill="#f7768e"/>
+  <text x="990" y="648" font-size="12.5" fill="#f7768e" font-family="-apple-system, Helvetica, Arial, sans-serif">gradient</text>
+
+  <!-- update box -->
+  <rect x="1104" y="640" width="190" height="64" fill="#161a20" stroke="#e8e6e1" stroke-width="1.4"/>
+  <text x="1122" y="677" font-size="22" fill="#e8e6e1">⊗</text>
+  <text x="1146" y="668" font-size="15.5" fill="#e8e6e1">heads + LoRA</text>
+  <text x="1146" y="690" font-size="12.5" fill="#9aa0a8" font-family="-apple-system, Helvetica, Arial, sans-serif">get the update</text>
+
+  <!-- gradient returns to panel (a) -->
+  <path d="M1188,640 C1188,580 1188,520 1192,462 L1204,462 C1200,520 1200,580 1200,640 Z" fill="url(#gRedUp)"/>
+  <path d="M1196,640 C1196,580 1196,520 1198,464" stroke="#f7768e" stroke-width="2.2" fill="none"/>
+  <path d="M1192,470 L1198,458 L1204,470 Z" fill="#f7768e"/>
+  <text x="1214" y="560" font-size="12.5" fill="#f7768e" font-family="-apple-system, Helvetica, Arial, sans-serif">back into the model</text>
+
+  <!-- KL leash -->
+  <rect x="364" y="790" width="200" height="44" fill="#161a20" stroke="#7aa2f7" stroke-width="1.1" stroke-dasharray="5 4" opacity="0.85"/>
+  <text x="464" y="818" font-size="15" fill="#7aa2f7" text-anchor="middle">frozen stage 1 copy</text>
+  <path d="M564,800 C660,800 700,724 780,706 L780,716 C700,734 660,812 564,812 Z" fill="#7aa2f7" opacity="0.10"/>
+  <path d="M564,806 C660,806 705,724 782,711" stroke="#7aa2f7" stroke-width="1.6" stroke-dasharray="6 5" fill="none" opacity="0.55"/>
+  <text x="640" y="786" font-size="14" fill="#7aa2f7" font-style="italic" opacity="0.9">KL leash</text>
+</svg>

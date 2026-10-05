@@ -1,0 +1,11 @@
+data/
+runs/*/adapter/
+runs/*/heads.pt
+runs/*/preds.jsonl
+__pycache__/
+*.egg-info/
+.firecrawl/
+pipeline.log
+out/
+out_server.log
+.pytest_cache/
