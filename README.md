@@ -1,6 +1,6 @@
 # sysone-vl
 
-A model that looks at a cluttered scene, picks an object, and predicts whether a grasp will work.
+Our model chooses which object a robot should pick up and estimates whether the grasp will succeed.
 
 <p align="center">
   <img src="docs/scenes.png" width="820" alt="six test scenes with the model's pick, reach, grasp probability and clutter level drawn on each">

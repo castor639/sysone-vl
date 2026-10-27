@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>sysone-vl</title>
-<meta name="description" content="A model that looks at a cluttered scene, picks an object, and predicts whether a grasp will work.">
+<meta name="description" content="Our model chooses which object a robot should pick up and estimates whether the grasp will succeed.">
 <meta name="color-scheme" content="light">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -144,8 +144,9 @@
     <h1 class="wordmark">sysone-vl</h1>
   </header>
 
-  <p class="lede">A model that looks at a cluttered scene, picks an object, and predicts whether a grasp will work.</p>
-  <p class="intro">You give it one camera image and one instruction. It answers four questions in one pass of 110 ms: which object to pick, if the object is in reach, if a grasp will work, and how cluttered the table is. It does not write text. Each answer is a probability.</p>
+  <p class="lede">Our model chooses which object a robot should pick up and estimates whether the grasp will succeed.</p>
+  <p class="intro">We fine-tuned Qwen2.5-VL-3B on simulated tabletop scenes. Given an image and an instruction like &ldquo;pick up the object closest to the gripper,&rdquo; it identifies the object, checks whether it&rsquo;s within reach, estimates grasp success, and rates the clutter, all in about 110 ms.</p>
+  <p class="intro">The main problem was its confidence. After fine-tuning, it usually predicted either 0% or 100% success, even when the outcome was uncertain. We added an RL calibration step called RLCD to make those estimates more realistic. Afterward, grasps given a 25% chance of success actually worked about a quarter of the time.</p>
 
   <section id="example" class="reveal">
     <h2 class="label">One scene</h2>
