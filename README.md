@@ -1,19 +1,126 @@
-# imagen
+# sysone-vl
 
-Pictures made by a model that can only answer questions.
+A model that looks at a cluttered scene, picks an object, and predicts whether a grasp will work.
 
 <p align="center">
-  <img src="docs/imagen/crescent_moon.png" width="150" alt="crescent moon">
-  <img src="docs/imagen/full_moon.png" width="150" alt="full moon">
-  <img src="docs/imagen/sun.png" width="150" alt="sun">
-  <img src="docs/imagen/rose.png" width="150" alt="rose">
-  <img src="docs/imagen/beach.png" width="150" alt="beach">
+  <img src="docs/scenes.png" width="820" alt="six test scenes with the model's pick, reach, grasp probability and clutter level drawn on each">
 </p>
-<p align="center"><i>"crescent moon", "full moon", "sun", "rose", "beach". 64 by 64 cells, unedited.</i></p>
+<p align="center"><i>Six test scenes the model did not see in training. Each label is a real output of the trained model.</i></p>
 
 See it live at [sysone.warpfield.me](https://sysone.warpfield.me).
 
 ## What it does
+
+You give the model one camera image of a table and one instruction. An example instruction is "pick up the object closest to the gripper." The model then answers four questions in one forward pass. It does not write text. Each answer is a probability.
+
+| Question | Type of answer |
+|---|---|
+| Which object should the gripper pick? | one object from the objects on the table |
+| Is that object inside the gripper's reach? | yes or no |
+| Will a grasp on that object work right now? | a probability from 0 to 1 |
+| How cluttered is the table? | clear, light, moderate or heavy |
+
+The grasp answer is the important one. A robot can use it to decide what to do next: grasp now, move the other objects first, or ask a person. For this, the number must be honest. If the model says 0.25, the grasp must work about one time in four.
+
+## One example scene
+
+<p align="center">
+  <img src="site/img/scene.svg" width="340" alt="tabletop scene with a gripper, a grey block on a green triangle, and three other objects">
+</p>
+
+This is one scene from the simulator. The instruction is "pick up the object closest to the gripper." These are the true answers:
+
+| Question | True answer |
+|---|---|
+| Which object should the gripper pick? | green triangle |
+| Is the target inside the gripper's reach? | yes |
+| Will a grasp on it work right now? | one time in four |
+| How cluttered is the table? | heavy |
+
+The grey block is on top of the triangle. Because of the block, a grasp works only one time in four.
+
+In the six scenes at the top, "grasp p" is the model's answer and "true p" is the simulator's answer. Two panels show mistakes. In the bottom middle panel, the model says 0.27 but the true value is 0.92. In the bottom right panel, the model picks the wrong object.
+
+## How it works
+
+The model starts from Qwen2.5-VL-3B, an open vision-language model. We removed its text output layer. We added one small answer head for each type of answer. A LoRA adapter (rank 16) trains the language model. The vision encoder does not change.
+
+Training has two stages:
+
+1. **Supervised training.** The model learns from labeled scenes. For the grasp question, each label is only "worked" or "failed." Because of this, the model learns to give probabilities near 0 or near 1.
+2. **RLCD (reinforcement learning for calibrated decisions).** The model makes its decisions. The simulator then tries each grasp and returns the result. The model gets a score for how good its probability was.
+
+## Results
+
+All numbers come from `runs/*/eval.json` and `runs/baseline_generate.json`. Each test set has 500 new scenes. The baseline test set has 100.
+
+| | Supervised only | After RLCD |
+|---|---|---|
+| Picks the right object | 98.8% | 99.2% |
+| Gets reach right | 88.2% | 92.4% |
+| Grasp calibration error | 0.21 | 0.06 |
+| Grasp odds, average miss vs true odds | 0.24 | 0.13 |
+| Time for one four-question query | 108 ms | 110 ms |
+
+Calibration error shows how far the model's odds are from how often grasps really work. A lower value is better. We also tried temperature scaling on the supervised model. That is the usual quick fix. The grasp calibration error stayed at 0.21. RLCD decreased it to 0.06.
+
+For comparison, we asked the untrained base model to reply with a letter. It picked the right object 69% of the time.
+
+<p align="center">
+  <img src="docs/reliability.png" width="720" alt="calibration plots before and after RLCD">
+</p>
+
+## Train it yourself
+
+You need an NVIDIA GPU. Our run used one L40S. Each training stage took about 11 minutes on it. The trained weights and the generated data are not in this repo. Make them yourself:
+
+```bash
+pip install -e .
+bash scripts/run_pipeline.sh
+```
+
+The script does these steps in this order:
+
+1. It builds the tabletop dataset.
+2. It runs supervised training.
+3. It fits temperatures.
+4. It runs RLCD.
+5. It evaluates each stage.
+6. It runs the base model baseline.
+
+To change the size of the run, set `TRAIN`, `EPOCHS` and `RLCD_STEPS`. For example:
+
+```bash
+TRAIN=1000 RLCD_STEPS=100 bash scripts/run_pipeline.sh
+```
+
+To serve the trained model and send it the scene above, run these two commands in two terminals:
+
+```bash
+python -m sysone.serve --ckpt runs/rlcd --port 8000
+python scripts/demo_request.py http://localhost:8000/v1/decide
+```
+
+The simulator test runs on any computer:
+
+```bash
+python -m pytest tests/test_env.py
+```
+
+## Also in this repo: imagen
+
+imagen makes pictures with a model that can only answer questions. It came after sysone-vl. It uses the same kind of typed questions, but it calls TypeSafe's hosted model, Jev.
+
+<p align="center">
+  <img src="docs/imagen/crescent_moon.png" width="120" alt="crescent moon">
+  <img src="docs/imagen/full_moon.png" width="120" alt="full moon">
+  <img src="docs/imagen/sun.png" width="120" alt="sun">
+  <img src="docs/imagen/rose.png" width="120" alt="rose">
+  <img src="docs/imagen/beach.png" width="120" alt="beach">
+</p>
+<p align="center"><i>"crescent moon", "full moon", "sun", "rose", "beach". 64 by 64 cells, unedited.</i></p>
+
+### What it does
 
 You type a prompt like "a sun in the sky over grass." imagen never asks a model to draw it. Instead it asks [Jev](https://typesafe.ai), TypeSafe's hosted decision model, a long list of typed questions. Jev writes no text. It only returns probabilities.
 
@@ -25,7 +132,7 @@ There are three kinds of question:
 
 Code does the geometry. Jev makes every decision about what goes in the picture.
 
-## How it draws
+### How it draws
 
 1. **Layout.** Jev picks the main subject from the words in your prompt. It also picks a shape, a size, a spot on the canvas and the colors. It decides if there is a horizon and how high it sits. Code turns those answers into a plan.
 2. **Pixels, coarse to fine.** Code builds the picture at a quarter size, then half size, then full size. Each cell is one Choice over a 16 color palette. The question tells Jev where the cell sits, which part of the plan it falls in and what its neighbors look like. Cells deep inside a solid area copy their parent, so Jev only gets asked about the cells that matter.
@@ -37,7 +144,7 @@ Code does the geometry. Jev makes every decision about what goes in the picture.
 </p>
 <p align="center"><i>Left: the layout Jev chose for "full moon". Right: the finished picture.</i></p>
 
-## Numbers
+### Numbers
 
 These are the five pictures above, one run each from the chat page. The raw run reports are in [`docs/imagen/reports/`](docs/imagen/reports).
 
@@ -49,7 +156,7 @@ These are the five pictures above, one run each from the chat page. The raw run 
 | rose | 3.6 s | 12 | 894 | 0.30M |
 | beach | 3.6 s | 15 | 972 | 0.34M |
 
-## Run it
+### Run it
 
 You need Python 3.10 or newer and a TypeSafe API key. From the repo folder:
 
@@ -83,82 +190,17 @@ pip install pytest
 python -m pytest tests/test_imagen.py
 ```
 
-## The experiment behind it: sysone-vl
-
-Before imagen, we built our own typed decision model for robots. It looks at a camera image of a tabletop and answers four questions in one pass, with no text generated. It runs on Qwen2.5-VL-3B with small answer heads on top and a LoRA adapter on the language model.
-
-<p align="center">
-  <img src="site/img/scene.svg" width="340" alt="tabletop scene with a gripper, a grey block on a green triangle, and three other objects">
-</p>
-
-Here is one scene from the simulator. The task is "pick up the object closest to the gripper." The four questions and the true answers are:
-
-| Question | True answer |
-|---|---|
-| Which object should the gripper pick? | green triangle |
-| Is the target inside the gripper's reach? | yes |
-| Will a grasp on it work right now? | one time in four |
-| How cluttered is the table? | heavy |
-
-The grey block sits on top of the triangle. That is why a grasp only works one time in four.
-
-The hard part is that last kind of answer. Plain supervised training only ever sees "worked" or "failed," so the model learns to guess close to 0 or 1. We added a second stage called RLCD (reinforcement learning for calibrated decisions). The model tries grasps in the simulator, sees what happens and gets scored on how good its probability was.
-
-## sysone-vl results
-
-All numbers come from `runs/*/eval.json` and `runs/baseline_generate.json`. Each test set is 500 new scenes, except the baseline, which used 100.
-
-| | Supervised only | After RLCD |
-|---|---|---|
-| Picks the right object | 98.8% | 99.2% |
-| Gets reach right | 88.2% | 92.4% |
-| Grasp calibration error | 0.21 | 0.06 |
-| Grasp odds, average miss vs true odds | 0.24 | 0.13 |
-| Time for one four-question query | 108 ms | 110 ms |
-
-Calibration error measures how far the model's stated odds are from how often grasps really work. Lower is better. We also tried the usual quick fix, temperature scaling, on the supervised model. Grasp calibration error stayed at 0.21. RLCD is what moved it.
-
-For comparison, the untrained base model, asked to reply with a letter, picked the right object 69% of the time.
-
-<p align="center">
-  <img src="docs/reliability.png" width="720" alt="calibration plots before and after RLCD">
-</p>
-
-## Train sysone-vl yourself
-
-You need an NVIDIA GPU. Our run used one L40S, and each training stage took about 11 minutes there. The trained weights and the generated data are not in this repo, so you make them yourself:
-
-```bash
-pip install -e .
-bash scripts/run_pipeline.sh
-```
-
-That script builds the tabletop dataset, runs supervised training, fits temperatures, runs RLCD, evaluates each step and runs the base model baseline. You can change the size with `TRAIN`, `EPOCHS` and `RLCD_STEPS`, for example `TRAIN=1000 RLCD_STEPS=100 bash scripts/run_pipeline.sh`.
-
-To serve the trained model and send it the scene above:
-
-```bash
-python -m sysone.serve --ckpt runs/rlcd --port 8000
-python scripts/demo_request.py http://localhost:8000/v1/decide
-```
-
-The simulator test runs on any machine:
-
-```bash
-python -m pytest tests/test_env.py
-```
-
 ## Limits
 
-- imagen needs a paid TypeSafe API key. Jev is a hosted model and is not part of this repo.
-- imagen makes small pixel art with a sensible layout. It does not make photographs. The numbers above come from one run of each of five prompts.
 - sysone-vl was trained and tested only on a simple simulated tabletop with flat shapes. It has never seen a real robot or a real camera.
 - The sysone-vl weights and data are not included. You need a GPU to train them, and `tests/test_tokenizer.py` downloads the Qwen model files the first time it runs.
+- imagen needs a paid TypeSafe API key. Jev is a hosted model and is not part of this repo.
+- imagen makes small pixel art with a sensible layout. It does not make photographs. The numbers above come from one run of each of five prompts.
 
 ## Repo layout
 
+- `sysone/` the grasp model: tabletop simulator, model, training and evaluation
 - `imagen/` the image generator: Jev client, layout and pixel questions, command line and chat page
-- `sysone/` the vision decision model: tabletop simulator, model, training and evaluation
 - `scripts/` the training pipeline, the demo request and the figure script
 - `runs/` configs, training logs and eval results from our run
 - `docs/` figures
@@ -166,7 +208,7 @@ python -m pytest tests/test_env.py
 
 ## Credits
 
-Jev and its Choice, Score and Noul types come from TypeSafe. imagen calls their hosted API. sysone-vl is our own build of the same idea on an open vision model, based on TypeSafe's public description of Jev.
+sysone-vl is our own typed decision model on an open vision model. It follows TypeSafe's public description of Jev and its Choice, Score and Noul types. imagen calls TypeSafe's hosted Jev API.
 
 ## License
 
